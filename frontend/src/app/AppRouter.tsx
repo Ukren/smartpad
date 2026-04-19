@@ -1,13 +1,15 @@
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 
 import { AppLayout } from './layout/AppLayout'
-import { LoginPage } from '../pages/auth/LoginPage'
-import { RegisterPage } from '../pages/auth/RegisterPage'
-import { NotesListPage } from '../pages/notes/NotesListPage'
-import { NoteViewPage } from '../pages/notes/NoteViewPage'
-import { NoteEditorPage } from '../pages/notes/NoteEditorPage'
-import { NotFoundPage } from '../pages/system/NotFoundPage'
-import { PinnedNotesPage } from '../pages/notes/PinnedNotesPage'
+import {
+  LoginPage,
+  NoteEditorPage,
+  NotesListPage,
+  NoteViewPage,
+  NotFoundPage,
+  PinnedNotesPage,
+  RegisterPage,
+} from '../pages'
 
 export const AppRouter = () => {
   return (
