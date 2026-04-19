@@ -1,6 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import { Drawer, List, ListItemButton, ListItemText } from '@mui/material'
 
+import { Drawer, Button } from '@mui/material'
+import { SidebarNav } from './components/SidebarNav'
+
+import { AddOutlined } from '@mui/icons-material'
 interface SidebarProps {
   width: number
 }
@@ -23,15 +26,7 @@ export const Sidebar = ({ width }: SidebarProps) => {
         },
       }}
     >
-      <List>
-        <ListItemButton onClick={() => navigate('/notes')}>
-          <ListItemText primary="All Notes" />
-        </ListItemButton>
-
-        <ListItemButton onClick={() => navigate('/notes/new')}>
-          <ListItemText primary="New Note" />
-        </ListItemButton>
-      </List>
+      <SidebarNav />
     </Drawer>
   )
 }
