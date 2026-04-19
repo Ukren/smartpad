@@ -26,6 +26,14 @@ export const Sidebar = ({ width }: SidebarProps) => {
         },
       }}
     >
+      <Button
+        variant="contained"
+        startIcon={<AddOutlined />}
+        onClick={() => navigate('/notes/new')}
+        sx={{ mt: 1, mb: 2, width: 150 }}
+      >
+        New Note
+      </Button>
       <SidebarNav />
     </Drawer>
   )
