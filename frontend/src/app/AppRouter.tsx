@@ -7,6 +7,7 @@ import { NotesListPage } from '../pages/notes/NotesListPage'
 import { NoteViewPage } from '../pages/notes/NoteViewPage'
 import { NoteEditorPage } from '../pages/notes/NoteEditorPage'
 import { NotFoundPage } from '../pages/system/NotFoundPage'
+import { PinnedNotesPage } from '../pages/notes/PinnedNotesPage'
 
 export const AppRouter = () => {
   return (
@@ -17,6 +18,7 @@ export const AppRouter = () => {
         <Route element={<AppLayout />}>
           <Route path="/" element={<Navigate to="/notes" replace />} />
           <Route path="/notes" element={<NotesListPage />} />
+          <Route path="/notes/pinned" element={<PinnedNotesPage />} />
           <Route path="/notes/:id" element={<NoteViewPage />} />
           <Route path="/notes/:id/edit" element={<NoteEditorPage />} />
         </Route>
