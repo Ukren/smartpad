@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { Drawer, Button } from '@mui/material'
 import { SidebarNav } from './components/SidebarNav'
+import { SidebarTags } from './components/SidebarTags'
+import { SidebarFooter } from './components/SidebarFooter'
 
 import { AddOutlined } from '@mui/icons-material'
 interface SidebarProps {
@@ -23,6 +25,8 @@ export const Sidebar = ({ width }: SidebarProps) => {
           position: 'relative',
           height: '100%',
           boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
         },
       }}
     >
@@ -35,6 +39,8 @@ export const Sidebar = ({ width }: SidebarProps) => {
         New Note
       </Button>
       <SidebarNav />
+      <SidebarTags />
+      <SidebarFooter />
     </Drawer>
   )
 }
