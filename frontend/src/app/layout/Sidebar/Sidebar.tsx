@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { SIDEBAR_WIDTH } from '../const/sidebar'
 
 import { Drawer, Button } from '@mui/material'
 import { SidebarNav } from './components/SidebarNav'
@@ -6,11 +7,8 @@ import { SidebarTags } from './components/SidebarTags'
 import { SidebarFooter } from './components/SidebarFooter'
 
 import { AddOutlined } from '@mui/icons-material'
-interface SidebarProps {
-  width: number
-}
 
-export const Sidebar = ({ width }: SidebarProps) => {
+export const Sidebar = () => {
   const navigate = useNavigate()
 
   return (
@@ -18,10 +16,10 @@ export const Sidebar = ({ width }: SidebarProps) => {
       variant="permanent"
       anchor="left"
       sx={{
-        width,
+        width: SIDEBAR_WIDTH,
         flexShrink: 0,
         '& .MuiDrawer-paper': {
-          width,
+          width: SIDEBAR_WIDTH,
           position: 'relative',
           height: '100%',
           boxSizing: 'border-box',

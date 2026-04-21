@@ -29,6 +29,7 @@ export const AppRouter = () => {
             <Route path="/" element={<Navigate to="/notes" replace />} />
             <Route path="/notes" element={<NotesListPage />} />
             <Route path="/notes/pinned" element={<PinnedNotesPage />} />
+            <Route path="/notes/deleted" element={<NotFoundPage />} />
             <Route path="/notes/:id" element={<NoteViewPage />} />
             <Route path="/notes/:id/edit" element={<NoteEditorPage />} />
           </Route>
