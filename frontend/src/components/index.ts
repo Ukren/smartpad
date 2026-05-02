@@ -1,3 +1,4 @@
+export { ConfirmDialog } from './ConfirmDialog'
 export { EmptyState } from './EmptyState'
 export { Loader } from './Loader'
-export { ConfirmDialog } from './ConfirmDialog'
+export { NoteCard } from './NoteCard'

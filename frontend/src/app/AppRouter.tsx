@@ -1,9 +1,11 @@
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
 
 import { AppLayout } from './layout/AppLayout'
+import { CssBaseline } from '@mui/material'
+
 import {
+  DeletedNotesPage,
   LoginPage,
   NoteEditorPage,
   NotesListPage,
@@ -29,7 +31,7 @@ export const AppRouter = () => {
             <Route path="/" element={<Navigate to="/notes" replace />} />
             <Route path="/notes" element={<NotesListPage />} />
             <Route path="/notes/pinned" element={<PinnedNotesPage />} />
-            <Route path="/notes/deleted" element={<NotFoundPage />} />
+            <Route path="/notes/deleted" element={<DeletedNotesPage />} />
             <Route path="/notes/:id" element={<NoteViewPage />} />
             <Route path="/notes/:id/edit" element={<NoteEditorPage />} />
           </Route>

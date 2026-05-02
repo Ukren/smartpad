@@ -2,6 +2,7 @@
 export { LoginPage } from './auth/LoginPage'
 export { RegisterPage } from './auth/RegisterPage'
 
+export { DeletedNotesPage } from './notes/DeletedNotesPage'
 export { NotesListPage } from './notes/NotesListPage'
 export { NoteViewPage } from './notes/NoteViewPage'
 export { NoteEditorPage } from './notes/NoteEditorPage'
