@@ -15,8 +15,9 @@ import { DeleteOutlined, PushPin, PushPinOutlined } from '@mui/icons-material'
 
 type NoteCardProps = {
   note: Note
-  onPin: (id: string) => void
-  onDelete: (id: string) => void
+  onPin?: (id: string) => void
+  onDelete?: (id: string) => void
+  actions?: React.ReactNode
 }
 
 const stripMarkdown = (text: string) =>
@@ -26,6 +27,7 @@ export const NoteCard = ({
   note,
   onPin,
   onDelete,
+  actions,
 }: NoteCardProps): React.ReactNode => {
   const navigate = useNavigate()
 
@@ -70,32 +72,30 @@ export const NoteCard = ({
       </CardActionArea>
 
       <CardActions sx={{ justifyContent: 'flex-end', pt: 0 }}>
-        <IconButton
-          size="small"
-          title={note.isPinned ? 'Unpin' : 'Pin'}
-          onClick={(e) => {
-            e.stopPropagation()
-            onPin(note.id)
-          }}
-        >
-          {note.isPinned ? (
-            <PushPin fontSize="small" />
-          ) : (
-            <PushPinOutlined fontSize="small" />
-          )}
-        </IconButton>
+        {actions ?? (
+          <>
+            <IconButton
+              size="small"
+              title={note.isPinned ? 'Unpin' : 'Pin'}
+              onClick={() => onPin?.(note.id)}
+            >
+              {note.isPinned ? (
+                <PushPin fontSize="small" />
+              ) : (
+                <PushPinOutlined fontSize="small" />
+              )}
+            </IconButton>
 
-        <IconButton
-          size="small"
-          color="error"
-          title="Delete"
-          onClick={(e) => {
-            e.stopPropagation()
-            onDelete(note.id)
-          }}
-        >
-          <DeleteOutlined fontSize="small" />
-        </IconButton>
+            <IconButton
+              size="small"
+              color="error"
+              title="Delete"
+              onClick={() => onDelete?.(note.id)}
+            >
+              <DeleteOutlined fontSize="small" />
+            </IconButton>
+          </>
+        )}
       </CardActions>
     </Card>
   )
