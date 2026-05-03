@@ -12,9 +12,7 @@ import {
   Typography,
 } from '@mui/material'
 
-import { MarkdownPreview } from '../../components/'
-import { ConfirmDialog } from '../../components'
-import { EmptyState } from '../../components'
+import { ConfirmDialog, EmptyState, MarkdownPreview } from '../../components'
 
 import {
   ArrowBack,
@@ -55,7 +53,6 @@ export const NoteViewPage = () => {
           mb: 2,
         }}
       >
-        {/* Back button */}
         <Button
           startIcon={<ArrowBack />}
           onClick={() => navigate('/notes')}
