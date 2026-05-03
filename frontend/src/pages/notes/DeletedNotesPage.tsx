@@ -2,8 +2,8 @@ import { useState } from 'react'
 import type { Note } from '../../types/note'
 import { MOCK_NOTES } from '../../mock/notes'
 
-import { ConfirmDialog, EmptyState, NoteCard } from '../../components'
-import { Box, Button, Grid, Typography } from '@mui/material'
+import { ConfirmDialog, EmptyState, NotesList } from '../../components'
+import { Box, Button, Typography } from '@mui/material'
 
 import { DeleteForeverOutlined, RestoreOutlined } from '@mui/icons-material'
 
@@ -28,37 +28,30 @@ export const DeletedNotesPage = () => {
         Deleted Notes
       </Typography>
 
-      {notes.length === 0 ? (
-        <EmptyState message="Trash is empty" />
-      ) : (
-        <Grid>
-          {notes.map((note) => (
-            <Grid key={note.id} size={{ xs: 12, sm: 6, md: 4 }}>
-              <NoteCard
-                note={note}
-                actions={
-                  <>
-                    <Button
-                      size="small"
-                      startIcon={<RestoreOutlined />}
-                      onClick={() => handleRestore(note.id)}
-                    >
-                      Restore
-                    </Button>
-                    <Button
-                      size="small"
-                      startIcon={<DeleteForeverOutlined />}
-                      onClick={() => setDeleteTargetId(note.id)}
-                    >
-                      Delete
-                    </Button>
-                  </>
-                }
-              ></NoteCard>
-            </Grid>
-          ))}
-        </Grid>
-      )}
+      <NotesList
+        notes={notes}
+        emptyState={<EmptyState message="Trash is empty" />}
+        onPin={undefined}
+        onDelete={undefined}
+        actions={(note) => (
+          <>
+            <Button
+              size="small"
+              startIcon={<RestoreOutlined />}
+              onClick={() => handleRestore(note.id)}
+            >
+              Restore
+            </Button>
+            <Button
+              size="small"
+              startIcon={<DeleteForeverOutlined />}
+              onClick={() => setDeleteTargetId(note.id)}
+            >
+              Delete
+            </Button>
+          </>
+        )}
+      />
 
       <ConfirmDialog
         open={deleteTargetId !== null}
