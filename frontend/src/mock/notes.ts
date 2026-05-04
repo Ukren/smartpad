@@ -1,5 +1,7 @@
 import type { Note } from "../types/note"
 
+export const MOCK_TAGS = ['work', 'ideas', 'personal', 'to-do', 'reading', 'health', 'finance']
+
 export const MOCK_NOTES: Note[] = [
   {
     id: '1',
