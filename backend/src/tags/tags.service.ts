@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class TagsService {
@@ -11,8 +11,8 @@ export class TagsService {
       where: { note: { userId } },
       include: { tag: true },
       distinct: ['tagId'],
-    });
-    return noteTags.map((nt) => nt.tag);
+    })
+    return noteTags.map((nt) => nt.tag)
   }
 
   async findNotesByTag(userId: string, tagName: string) {
@@ -24,10 +24,10 @@ export class TagsService {
       },
       include: { noteTags: { include: { tag: true } } },
       orderBy: { updatedAt: 'desc' },
-    });
+    })
     return notes.map((note) => {
-      const { noteTags, ...rest } = note;
-      return { ...rest, tags: noteTags.map((nt) => nt.tag) };
-    });
+      const { noteTags, ...rest } = note
+      return { ...rest, tags: noteTags.map((nt) => nt.tag) }
+    })
   }
 }
