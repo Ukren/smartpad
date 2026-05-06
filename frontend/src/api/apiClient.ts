@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-export const apiClient = axios.create({
-  baseURL: '<http://localhost:3000>',
+const apiClient = axios.create({
+  baseURL: 'http://localhost:3000',
   withCredentials: true,
 })
 
@@ -14,3 +14,5 @@ apiClient.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+export default apiClient
