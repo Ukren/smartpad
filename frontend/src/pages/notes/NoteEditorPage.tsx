@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, Controller, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -20,40 +20,64 @@ import {
 
 import { z } from 'zod'
 import { noteSchema } from '../../schemas/note'
-import { MOCK_NOTES, MOCK_TAGS } from '../../mock/notes'
-import { EmptyState, MarkdownPreview } from '../../components'
+import {
+  useNote,
+  useCreateNote,
+  useUpdateNote,
+  useTags,
+} from '../../hooks/useNotes'
+import { EmptyState, Loader, MarkdownPreview } from '../../components'
 
 export const NoteEditorPage = () => {
   const { id } = useParams<{ id?: string }>()
   const navigate = useNavigate()
   const isEdit = Boolean(id)
-  const note = isEdit ? MOCK_NOTES.find((n) => n.id === id) : undefined
+
+  const { data: note, isLoading: noteLoading } = useNote(id)
+  const { data: tagsData = [] } = useTags()
+  const tagOptions = tagsData.map((t) => t.name)
+
+  const createNote = useCreateNote()
+  const updateNote = useUpdateNote()
 
   const [preview, setPreview] = useState(false)
   const {
     control,
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<z.input<typeof noteSchema>, unknown, z.output<typeof noteSchema>>(
     {
       resolver: zodResolver(noteSchema),
       defaultValues: {
-        title: note?.title ?? '',
-        content: note?.content ?? '',
-        tags: note?.tags.map((t) => t.name) ?? [],
+        title: '',
+        content: '',
+        tags: [],
       },
     }
   )
+  useEffect(() => {
+    if (note) {
+      reset({
+        title: note.title,
+        content: note.content,
+        tags: note.tags.map((t) => t.name),
+      })
+    }
+  }, [note, reset])
 
   const watchedContent = useWatch({ control, name: 'content' })
 
-  if (isEdit && !note) {
-    return <EmptyState message="Note not found" />
-  }
+  if (isEdit && noteLoading) return <Loader />
+  if (isEdit && !note) return <EmptyState message="Note not found" />
 
-  const onSubmit = (data: z.output<typeof noteSchema>) => {
-    console.log(data)
+  const onSubmit = async (data: z.output<typeof noteSchema>) => {
+    if (isEdit && id) {
+      await updateNote.mutateAsync({ id, data })
+    } else {
+      await createNote.mutateAsync(data)
+    }
     navigate('/notes')
   }
 
@@ -87,7 +111,13 @@ export const NoteEditorPage = () => {
           </ToggleButton>
         </ToggleButtonGroup>
 
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={
+            isSubmitting || createNote.isPending || updateNote.isPending
+          }
+        >
           {isEdit ? 'Update' : 'Save'}
         </Button>
       </Box>
@@ -111,7 +141,7 @@ export const NoteEditorPage = () => {
           <Autocomplete
             multiple
             freeSolo
-            options={MOCK_TAGS}
+            options={tagOptions}
             value={field.value ?? []}
             onChange={(_, newValue) => field.onChange(newValue as string[])}
             renderInput={(params) => (

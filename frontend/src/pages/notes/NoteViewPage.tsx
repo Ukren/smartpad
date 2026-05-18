@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { MOCK_NOTES } from '../../mock/notes'
-import type { Note } from '../../types/note'
+import { useNote, useTogglePin, useSoftDeleteNote } from '../../hooks/useNotes'
 
 import {
   Box,
@@ -12,7 +11,12 @@ import {
   Typography,
 } from '@mui/material'
 
-import { ConfirmDialog, EmptyState, MarkdownPreview } from '../../components'
+import {
+  ConfirmDialog,
+  EmptyState,
+  Loader,
+  MarkdownPreview,
+} from '../../components'
 
 import {
   ArrowBack,
@@ -26,21 +30,25 @@ export const NoteViewPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
-  const [note, setNote] = useState<Note | undefined>(
-    MOCK_NOTES.find((n) => n.id === id)
-  )
+  const { data: note, isLoading, isError } = useNote(id!)
+  const togglePin = useTogglePin()
+  const softDelete = useSoftDeleteNote()
   const [deleteOpen, setDeleteOpen] = useState(false)
-  if (!note) {
-    return <EmptyState message="Note not found" />
-  }
+
+  if (isLoading) return <Loader />
+  if (isError || !note) return <EmptyState message="Note not found" />
 
   const handlePin = () => {
-    setNote((prev) => prev && { ...prev, isPinned: !prev.isPinned })
+    togglePin.mutate({ id: note.id, isPinned: !note.isPinned })
   }
 
   const handleConfirmDelete = () => {
-    setDeleteOpen(false)
-    navigate('/notes')
+    softDelete.mutate(note.id, {
+      onSuccess: () => {
+        setDeleteOpen(false)
+        navigate('/notes')
+      },
+    })
   }
 
   return (

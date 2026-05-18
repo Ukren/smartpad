@@ -1,24 +1,29 @@
 import { useState } from 'react'
-import type { Note } from '../../types/note'
-import { MOCK_NOTES } from '../../mock/notes'
+import {
+  useDeletedNotes,
+  useDeleteNote,
+  useRestoreNote,
+} from '../../hooks/useNotes'
 
-import { ConfirmDialog, EmptyState, NotesList } from '../../components'
+import { ConfirmDialog, EmptyState, NotesList, Loader } from '../../components'
 import { Box, Button, Typography } from '@mui/material'
 
 import { DeleteForeverOutlined, RestoreOutlined } from '@mui/icons-material'
 
 export const DeletedNotesPage = () => {
-  const [notes, setNotes] = useState<Note[]>(
-    MOCK_NOTES.filter((note) => note.isDeleted)
-  )
+  const { data: notes = [], isLoading } = useDeletedNotes()
+  const deleteNote = useDeleteNote()
+  const restoreNote = useRestoreNote()
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
+  if (isLoading) return <Loader />
+
   const handleRestore = (id: string) => {
-    setNotes((prev) => prev.filter((note) => note.id !== id))
+    restoreNote.mutate(id)
   }
 
   const handlePermanentDelete = () => {
-    setNotes((prev) => prev.filter((note) => note.id !== deleteTargetId))
+    if (deleteTargetId) deleteNote.mutate(deleteTargetId)
     setDeleteTargetId(null)
   }
 

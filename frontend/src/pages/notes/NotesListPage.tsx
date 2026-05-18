@@ -1,22 +1,25 @@
-import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Box, Typography } from '@mui/material'
-import { MOCK_NOTES } from '../../mock/notes'
-import { NotesList } from '../../components'
-import type { Note } from '../../types/note'
+import { useNotes, useTogglePin, useSoftDeleteNote } from '../../hooks/useNotes'
+import { NotesList, Loader } from '../../components'
 
 export const NotesListPage = () => {
-  const [notes, setNotes] = useState<Note[]>(
-    MOCK_NOTES.filter((n) => !n.isDeleted)
-  )
+  const [searchParams] = useSearchParams()
+  const search = searchParams.get('search') ?? undefined
+
+  const { data: notes = [], isLoading } = useNotes(search)
+  const togglePin = useTogglePin()
+  const softDelete = useSoftDeleteNote()
+
+  if (isLoading) return <Loader />
 
   const handlePin = (id: string) => {
-    setNotes((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isPinned: !n.isPinned } : n))
-    )
+    const note = notes.find((n) => n.id === id)
+    if (note) togglePin.mutate({ id, isPinned: !note.isPinned })
   }
 
   const handleDelete = (id: string) => {
-    setNotes((prev) => prev.filter((n) => n.id !== id))
+    softDelete.mutate(id)
   }
 
   return (

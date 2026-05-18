@@ -1,19 +1,28 @@
-import { useState } from 'react'
-import { MOCK_NOTES } from '../../mock/notes'
-import type { Note } from '../../types/note'
+import {
+  usePinnedNotes,
+  useTogglePin,
+  useSoftDeleteNote,
+} from '../../hooks/useNotes'
 
-import { EmptyState, NotesList } from '../../components'
+import { EmptyState, NotesList, Loader } from '../../components'
 import { Box, Typography } from '@mui/material'
 
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined'
 
 export const PinnedNotesPage = () => {
-  const [notes, setNotes] = useState<Note[]>(
-    MOCK_NOTES.filter((n) => n.isPinned && !n.isDeleted)
-  )
+  const { data: notes = [], isLoading } = usePinnedNotes()
+  const togglePin = useTogglePin()
+  const softDelete = useSoftDeleteNote()
 
-  const removeFromList = (id: string) => {
-    setNotes((prev) => prev.filter((n) => n.id !== id))
+  if (isLoading) return <Loader />
+
+  const handlePin = (id: string) => {
+    const note = notes.find((n) => n.id === id)
+    if (note) togglePin.mutate({ id, isPinned: !note.isPinned })
+  }
+
+  const handleDelete = (id: string) => {
+    softDelete.mutate(id)
   }
 
   return (
@@ -23,8 +32,8 @@ export const PinnedNotesPage = () => {
       </Typography>
       <NotesList
         notes={notes}
-        onPin={removeFromList}
-        onDelete={removeFromList}
+        onPin={handlePin}
+        onDelete={handleDelete}
         emptyState={
           <EmptyState
             message="No pinned notes yet"
