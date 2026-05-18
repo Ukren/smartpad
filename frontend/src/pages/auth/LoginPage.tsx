@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -15,23 +15,24 @@ import {
 } from '@mui/material'
 import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material'
 
+import { Alert } from '@mui/material'
 import { loginSchema, type LoginFormValues } from '../../schemas/auth'
+import { useLogin } from '../../hooks/useAuth'
 
 export const LoginPage = () => {
-  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const login = useLogin()
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   })
 
   const onSubmit = (data: LoginFormValues) => {
-    console.log(data)
-    navigate('/notes')
+    login.mutate(data)
   }
 
   return (
@@ -99,14 +100,20 @@ export const LoginPage = () => {
               }}
             />
 
+            {login.isError && (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                Invalid email or password
+              </Alert>
+            )}
+
             <Button
               type="submit"
               variant="contained"
               fullWidth
-              disabled={isSubmitting}
+              disabled={login.isPending}
               sx={{ mt: 1 }}
             >
-              Sign in
+              {login.isPending ? 'Signing in…' : 'Sign in'}
             </Button>
           </Box>
 

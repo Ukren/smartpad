@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -15,24 +15,25 @@ import {
 } from '@mui/material'
 import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material'
 
+import { Alert } from '@mui/material'
 import { registerSchema, type RegisterFormValues } from '../../schemas/auth'
+import { useRegister } from '../../hooks/useAuth'
 
 export const RegisterPage = () => {
-  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const registerUser = useRegister()
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
   })
 
   const onSubmit = (data: RegisterFormValues) => {
-    console.log(data)
-    navigate('/login')
+    registerUser.mutate(data)
   }
 
   return (
@@ -138,14 +139,20 @@ export const RegisterPage = () => {
               }}
             />
 
+            {registerUser.isError && (
+              <Alert severity="error" sx={{ mt: 1 }}>
+                Registration failed. Email may already be in use.
+              </Alert>
+            )}
+
             <Button
               type="submit"
               variant="contained"
               fullWidth
-              disabled={isSubmitting}
+              disabled={registerUser.isPending}
               sx={{ mt: 1 }}
             >
-              Create account
+              {registerUser.isPending ? 'Creating account…' : 'Create account'}
             </Button>
           </Box>
 

@@ -11,13 +11,14 @@ import {
   Typography,
 } from '@mui/material'
 import { LogoutOutlined } from '@mui/icons-material'
-
-const MOCK_USER = { name: 'Demo User', email: 'example@email.com' }
+import { useCurrentUser, useLogout } from '../../../../hooks/useAuth'
 
 export const UserMenu = () => {
   const [anchor, setAnchor] = useState<null | HTMLElement>(null)
+  const { data: user } = useCurrentUser()
+  const logout = useLogout()
 
-  const initials = MOCK_USER.name
+  const initials = (user?.name ?? '?')
     .split(' ')
     .map((word) => word[0])
     .join('')
@@ -42,14 +43,19 @@ export const UserMenu = () => {
       >
         <Box sx={{ px: 2, py: 1 }}>
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            {MOCK_USER.name}
+            {user?.name}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {MOCK_USER.email}
+            {user?.email}
           </Typography>
         </Box>
         <Divider />
-        <MenuItem>
+        <MenuItem
+          onClick={() => {
+            setAnchor(null)
+            logout.mutate()
+          }}
+        >
           <ListItemIcon>
             <LogoutOutlined fontSize="small" />
           </ListItemIcon>
