@@ -23,18 +23,21 @@ export const useNotes = (search?: string) =>
   useQuery({
     queryKey: ['notes', search ?? ''],
     queryFn: () => getNotes(search),
+    retry: false,
   })
 
 export const usePinnedNotes = () =>
   useQuery({
     queryKey: ['notes', 'pinned'],
     queryFn: getPinnedNotes,
+    retry: false,
   })
 
 export const useDeletedNotes = () =>
   useQuery({
     queryKey: ['notes', 'deleted'],
     queryFn: getDeletedNotes,
+    retry: false,
   })
 
 export const useNote = (id: string | undefined) =>
@@ -42,12 +45,14 @@ export const useNote = (id: string | undefined) =>
     queryKey: ['notes', 'detail', id],
     queryFn: () => getNote(id!),
     enabled: Boolean(id),
+    retry: false,
   })
 
 export const useTags = () =>
   useQuery({
     queryKey: ['tags'],
     queryFn: getTags,
+    retry: false,
   })
 
 export const useNotesByTag = (tag: string) =>
@@ -55,6 +60,7 @@ export const useNotesByTag = (tag: string) =>
     queryKey: ['tags', tag, 'notes'],
     queryFn: () => getNotesByTag(tag),
     enabled: Boolean(tag),
+    retry: false,
   })
 
 // ── Mutation hooks ────────────────────────────────────────────────────────────
