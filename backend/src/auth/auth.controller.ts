@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
   Res,
@@ -12,6 +13,7 @@ import { AuthService } from './auth.service'
 import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
+import { ChangePasswordDto } from './dto/change-password.dto'
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -22,6 +24,12 @@ const COOKIE_OPTIONS = {
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Patch('change-password')
+  @UseGuards(JwtAuthGuard)
+  changePassword(@Req() req: Request, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(req.user['sub'], dto)
+  }
 
   @Post('register')
   async register(
