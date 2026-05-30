@@ -7,15 +7,20 @@ export type User = {
   email: string
 }
 
+export const changePassword = (data: {
+  currentPassword: string
+  newPassword: string
+}) => apiClient.patch('/auth/change-password', data)
+
 export const getMe = (): Promise<User> =>
   apiClient.get('/auth/me').then((r) => r.data)
 
 export const login = (data: LoginFormValues): Promise<User> =>
   apiClient.post('/auth/login', data).then((r) => r.data)
 
+export const logout = (): Promise<void> =>
+  apiClient.post('/auth/logout').then(() => undefined)
+
 export const register = (
   data: Omit<RegisterFormValues, 'confirmPassword'>
 ): Promise<User> => apiClient.post('/auth/register', data).then((r) => r.data)
-
-export const logout = (): Promise<void> =>
-  apiClient.post('/auth/logout').then(() => undefined)

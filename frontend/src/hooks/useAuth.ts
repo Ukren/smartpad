@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { getMe, login, logout, register } from '../api/auth'
+import { changePassword, getMe, login, logout, register } from '../api/auth'
 import type { LoginFormValues, RegisterFormValues } from '../schemas/auth'
 
 export const useCurrentUser = () =>
@@ -45,3 +45,9 @@ export const useLogout = () => {
     },
   })
 }
+
+export const useChangePassword = () =>
+  useMutation({
+    mutationFn: (data: { currentPassword: string; newPassword: string }) =>
+      changePassword(data),
+  })

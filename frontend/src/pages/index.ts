@@ -1,3 +1,4 @@
+export { ChangePasswordPage } from './auth/ChangePasswordPage'
 export { LoginPage } from './auth/LoginPage'
 export { RegisterPage } from './auth/RegisterPage'
 

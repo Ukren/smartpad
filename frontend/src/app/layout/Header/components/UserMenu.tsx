@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Avatar,
   Box,
@@ -10,13 +11,14 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { LogoutOutlined } from '@mui/icons-material'
+import { LockOutlined, LogoutOutlined } from '@mui/icons-material'
 import { useCurrentUser, useLogout } from '../../../../hooks/useAuth'
 
 export const UserMenu = () => {
   const [anchor, setAnchor] = useState<null | HTMLElement>(null)
   const { data: user } = useCurrentUser()
   const logout = useLogout()
+  const navigate = useNavigate()
 
   const initials = (user?.name ?? '?')
     .split(' ')
@@ -50,6 +52,17 @@ export const UserMenu = () => {
           </Typography>
         </Box>
         <Divider />
+        <MenuItem
+          onClick={() => {
+            setAnchor(null)
+            navigate('/change-password')
+          }}
+        >
+          <ListItemIcon>
+            <LockOutlined fontSize="small" />
+          </ListItemIcon>
+          Change password
+        </MenuItem>
         <MenuItem
           onClick={() => {
             setAnchor(null)
