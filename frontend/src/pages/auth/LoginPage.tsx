@@ -3,10 +3,12 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
+  Divider,
   IconButton,
   InputAdornment,
   Link,
@@ -15,9 +17,11 @@ import {
 } from '@mui/material'
 import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material'
 
-import { Alert } from '@mui/material'
 import { loginSchema, type LoginFormValues } from '../../schemas/auth'
 import { useLogin } from '../../hooks/useAuth'
+
+const DEMO_EMAIL = 'demo@example.com'
+const DEMO_PASSWORD = 'password123'
 
 export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -33,6 +37,10 @@ export const LoginPage = () => {
 
   const onSubmit = (data: LoginFormValues) => {
     login.mutate(data)
+  }
+
+  const loginAsDemo = () => {
+    login.mutate({ email: DEMO_EMAIL, password: DEMO_PASSWORD })
   }
 
   return (
@@ -116,6 +124,17 @@ export const LoginPage = () => {
               {login.isPending ? 'Signing in…' : 'Sign in'}
             </Button>
           </Box>
+
+          <Divider sx={{ my: 2 }}>or</Divider>
+
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={loginAsDemo}
+            disabled={login.isPending}
+          >
+            Try Demo
+          </Button>
 
           <Typography variant="body2" align="center" sx={{ mt: 3 }}>
             Don&apos;t have an account?{' '}
