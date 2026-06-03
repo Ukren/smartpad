@@ -1,9 +1,14 @@
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-
-import { AppLayout } from './layout/AppLayout'
-import { ProtectedRoute } from './ProtectedRoute'
 import { CssBaseline } from '@mui/material'
+
+import DashboardLayout from './layout/DashboardLayout'
+import { ProtectedRoute } from './ProtectedRoute'
+
+import {
+  dataGridCustomizations,
+  sidebarCustomizations,
+} from '../theme/customizations'
 
 import {
   ChangePasswordPage,
@@ -20,18 +25,22 @@ import {
 
 const theme = createTheme({
   colorSchemes: { light: true, dark: true },
+  components: {
+    ...dataGridCustomizations,
+    ...sidebarCustomizations,
+  },
 })
 
 export const AppRouter = () => {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
+      <CssBaseline enableColorScheme />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
+            <Route element={<DashboardLayout />}>
               <Route path="/" element={<Navigate to="/notes" replace />} />
               <Route path="/change-password" element={<ChangePasswordPage />} />
               <Route path="/notes" element={<NotesListPage />} />
