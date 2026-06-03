@@ -2,16 +2,14 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, Controller, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Divider,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import Typography from '@mui/material/Typography'
+import Autocomplete from '@mui/material/Autocomplete'
+import Stack from '@mui/material/Stack'
 import {
   ArrowBack,
   EditOutlined,
@@ -27,6 +25,7 @@ import {
   useTags,
 } from '../../hooks/useNotes'
 import { EmptyState, Loader, MarkdownPreview } from '../../components'
+import { PageContainer } from '../../components/PageContainer'
 
 export const NoteEditorPage = () => {
   const { id } = useParams<{ id?: string }>()
@@ -82,121 +81,130 @@ export const NoteEditorPage = () => {
   }
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-      {/* ── Toolbar ────────────────────────────────────────── */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-        <Button
-          startIcon={<ArrowBack />}
-          size="small"
-          onClick={() => navigate(-1)}
+    <PageContainer
+      breadcrumbs={[
+        { title: 'Notes', path: '/notes' },
+        { title: isEdit ? 'Edit' : 'New' },
+      ]}
+      actions={
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={preview ? 'preview' : 'edit'}
+            onChange={(_, val) => val !== null && setPreview(val === 'preview')}
+          >
+            <ToggleButton value="edit">
+              <EditOutlined fontSize="small" sx={{ mr: 0.5 }} />
+              Edit
+            </ToggleButton>
+            <ToggleButton value="preview">
+              <VisibilityOutlined fontSize="small" sx={{ mr: 0.5 }} />
+              Preview
+            </ToggleButton>
+          </ToggleButtonGroup>
+          <Button
+            type="submit"
+            form="note-form"
+            variant="contained"
+            disabled={
+              isSubmitting || createNote.isPending || updateNote.isPending
+            }
+          >
+            {isEdit ? 'Update' : 'Save'}
+          </Button>
+        </Stack>
+      }
+    >
+      <Button
+        startIcon={<ArrowBack />}
+        size="small"
+        onClick={() => navigate(-1)}
+        sx={{ mb: 2, alignSelf: 'flex-start' }}
+      >
+        Cancel
+      </Button>
+
+      <Box
+        component="form"
+        id="note-form"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
+        <TextField
+          {...register('title')}
+          label="Title"
+          fullWidth
+          autoFocus
+          error={Boolean(errors.title)}
+          helperText={errors.title?.message}
+          sx={{ mb: 2 }}
+        />
+
+        <Controller
+          name="tags"
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              multiple
+              freeSolo
+              options={tagOptions}
+              value={field.value ?? []}
+              onChange={(_, newValue) => field.onChange(newValue as string[])}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Tags"
+                  placeholder="Add tag…"
+                  error={Boolean(errors.tags)}
+                  helperText={
+                    errors.tags?.message ?? 'Press Enter to add a custom tag'
+                  }
+                />
+              )}
+              sx={{ mb: 3 }}
+            />
+          )}
+        />
+
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ mb: 1, display: 'block' }}
         >
-          Cancel
-        </Button>
+          Content (Markdown supported)
+        </Typography>
 
-        <Box sx={{ flexGrow: 1 }} />
-
-        <ToggleButtonGroup
-          size="small"
-          exclusive
-          value={preview ? 'preview' : 'edit'}
-          onChange={(_, val) => val !== null && setPreview(val === 'preview')}
-        >
-          <ToggleButton value="edit">
-            <EditOutlined fontSize="small" sx={{ mr: 0.5 }} />
-            Edit
-          </ToggleButton>
-          <ToggleButton value="preview">
-            <VisibilityOutlined fontSize="small" sx={{ mr: 0.5 }} />
-            Preview
-          </ToggleButton>
-        </ToggleButtonGroup>
-
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={
-            isSubmitting || createNote.isPending || updateNote.isPending
-          }
-        >
-          {isEdit ? 'Update' : 'Save'}
-        </Button>
-      </Box>
-
-      <Divider sx={{ mb: 3 }} />
-
-      <TextField
-        {...register('title')}
-        label="Title"
-        fullWidth
-        autoFocus
-        error={Boolean(errors.title)}
-        helperText={errors.title?.message}
-        sx={{ mb: 2 }}
-      />
-
-      <Controller
-        name="tags"
-        control={control}
-        render={({ field }) => (
-          <Autocomplete
-            multiple
-            freeSolo
-            options={tagOptions}
-            value={field.value ?? []}
-            onChange={(_, newValue) => field.onChange(newValue as string[])}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Tags"
-                placeholder="Add tag…"
-                error={Boolean(errors.tags)}
-                helperText={
-                  errors.tags?.message ?? 'Press Enter to add a custom tag'
-                }
-              />
+        {preview ? (
+          <Box
+            sx={{
+              minHeight: 240,
+              p: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1,
+            }}
+          >
+            {watchedContent ? (
+              <MarkdownPreview content={watchedContent} />
+            ) : (
+              <Typography color="text.disabled" variant="body2">
+                Nothing to preview yet.
+              </Typography>
             )}
-            sx={{ mb: 3 }}
+          </Box>
+        ) : (
+          <TextField
+            {...register('content')}
+            multiline
+            minRows={10}
+            fullWidth
+            placeholder="Write in Markdown…"
+            error={Boolean(errors.content)}
+            helperText={errors.content?.message}
           />
         )}
-      />
-
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={{ mb: 1, display: 'block' }}
-      >
-        Content (Markdown supported)
-      </Typography>
-
-      {preview ? (
-        <Box
-          sx={{
-            minHeight: 240,
-            p: 2,
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 1,
-          }}
-        >
-          {watchedContent ? (
-            <MarkdownPreview content={watchedContent} />
-          ) : (
-            <Typography color="text.disabled" variant="body2">
-              Nothing to preview yet.
-            </Typography>
-          )}
-        </Box>
-      ) : (
-        <TextField
-          {...register('content')}
-          multiline
-          minRows={10}
-          fullWidth
-          placeholder="Write in Markdown…"
-          error={Boolean(errors.content)}
-          helperText={errors.content?.message}
-        />
-      )}
-    </Box>
+      </Box>
+    </PageContainer>
   )
 }

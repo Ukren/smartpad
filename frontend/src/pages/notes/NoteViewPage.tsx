@@ -2,14 +2,13 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useNote, useTogglePin, useSoftDeleteNote } from '../../hooks/useNotes'
 
-import {
-  Box,
-  Button,
-  Divider,
-  IconButton,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import Stack from '@mui/material/Stack'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 import {
   ConfirmDialog,
@@ -17,6 +16,7 @@ import {
   Loader,
   MarkdownPreview,
 } from '../../components'
+import { PageContainer } from '../../components/PageContainer'
 
 import {
   ArrowBack,
@@ -52,56 +52,59 @@ export const NoteViewPage = () => {
   }
 
   return (
-    <Box>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          mb: 2,
-        }}
+    <PageContainer
+      breadcrumbs={[{ title: 'Notes', path: '/notes' }, { title: note.title }]}
+      actions={
+        <Stack direction="row" spacing={0.5}>
+          <Tooltip title="Edit note">
+            <IconButton onClick={() => navigate(`/notes/${note.id}/edit`)}>
+              <EditOutlined />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={note.isPinned ? 'Unpin' : 'Pin'}>
+            <IconButton onClick={handlePin}>
+              {note.isPinned ? <PushPin /> : <PushPinOutlined />}
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete note">
+            <IconButton color="error" onClick={() => setDeleteOpen(true)}>
+              <DeleteOutlined />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      }
+    >
+      <Button
+        startIcon={<ArrowBack />}
+        onClick={() => navigate('/notes')}
+        size="small"
+        sx={{ mb: 2, alignSelf: 'flex-start' }}
       >
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => navigate('/notes')}
-          size="small"
-        >
-          Back
-        </Button>
-
-        <Box sx={{ flexGrow: 1 }} />
-        <Tooltip title="Edit note">
-          <IconButton onClick={() => navigate(`/notes/${note.id}/edit`)}>
-            <EditOutlined />
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title={note.isPinned ? 'Unpin' : 'Pin'}>
-          <IconButton onClick={handlePin}>
-            {note.isPinned ? <PushPin /> : <PushPinOutlined />}
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title="Delete note">
-          <IconButton color="error" onClick={() => setDeleteOpen(true)}>
-            <DeleteOutlined />
-          </IconButton>
-        </Tooltip>
-      </Box>
-
-      <Divider sx={{ mb: 3 }} />
-
-      <Typography variant="h4" sx={{ mb: 1 }}>
-        {note.title}
-      </Typography>
+        Back
+      </Button>
 
       <Typography
         variant="caption"
         color="text.disabled"
-        sx={{ mb: 3, display: 'block' }}
+        sx={{ mb: 1, display: 'block' }}
       >
         Last updated {new Date(note.updatedAt).toLocaleDateString()}
       </Typography>
+
+      {note.tags.length > 0 && (
+        <Stack direction="row" spacing={0.5} sx={{ mb: 2, flexWrap: 'wrap' }}>
+          {note.tags.map((tag) => (
+            <Chip
+              key={tag.id}
+              label={tag.name}
+              size="small"
+              variant="outlined"
+            />
+          ))}
+        </Stack>
+      )}
+
+      <Divider sx={{ mb: 3 }} />
 
       <MarkdownPreview content={note.content} />
 
@@ -113,6 +116,6 @@ export const NoteViewPage = () => {
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteOpen(false)}
       />
-    </Box>
+    </PageContainer>
   )
 }
