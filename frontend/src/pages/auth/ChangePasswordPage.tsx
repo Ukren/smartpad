@@ -5,8 +5,6 @@ import {
   Alert,
   Box,
   Button,
-  Card,
-  CardContent,
   IconButton,
   InputAdornment,
   TextField,
@@ -16,6 +14,7 @@ import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material'
 
 import { changePasswordSchema } from '../../schemas/auth'
 import { useChangePassword } from '../../hooks/useAuth'
+import { PageContainer } from '../../components'
 import type { z } from 'zod'
 
 type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>
@@ -44,136 +43,132 @@ export const ChangePasswordPage = () => {
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        p: 4,
-      }}
+    <PageContainer
+      breadcrumbs={[
+        { title: 'Settings', path: '/notes' },
+        { title: 'Change password' },
+      ]}
+      maxWidth={560}
     >
-      <Card sx={{ width: '100%', maxWidth: 440 }}>
-        <CardContent sx={{ p: 4 }}>
-          <Typography variant="h5" sx={{ mb: 1, fontWeight: 'bold' }}>
-            Change password
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Enter your current password and choose a new one
-          </Typography>
+      <Typography variant="h1" sx={{ mb: 0.5 }}>
+        Change password
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+        Enter your current password and choose a new one
+      </Typography>
 
-          <Box
-            component="form"
-            onSubmit={handleSubmit(onSubmit)}
-            noValidate
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 440 }}
+      >
+        <TextField
+          {...register('currentPassword')}
+          label="Current password"
+          type={showCurrent ? 'text' : 'password'}
+          autoComplete="current-password"
+          fullWidth
+          error={Boolean(errors.currentPassword)}
+          helperText={errors.currentPassword?.message}
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowCurrent((s) => !s)}
+                    edge="end"
+                    aria-label="toggle current password visibility"
+                  >
+                    {showCurrent ? (
+                      <VisibilityOffOutlined />
+                    ) : (
+                      <VisibilityOutlined />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+
+        <TextField
+          {...register('newPassword')}
+          label="New password"
+          type={showNew ? 'text' : 'password'}
+          autoComplete="new-password"
+          fullWidth
+          error={Boolean(errors.newPassword)}
+          helperText={errors.newPassword?.message}
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowNew((s) => !s)}
+                    edge="end"
+                    aria-label="toggle new password visibility"
+                  >
+                    {showNew ? (
+                      <VisibilityOffOutlined />
+                    ) : (
+                      <VisibilityOutlined />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+
+        <TextField
+          {...register('confirmPassword')}
+          label="Confirm new password"
+          type={showConfirm ? 'text' : 'password'}
+          autoComplete="new-password"
+          fullWidth
+          error={Boolean(errors.confirmPassword)}
+          helperText={errors.confirmPassword?.message}
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowConfirm((s) => !s)}
+                    edge="end"
+                    aria-label="toggle confirm password visibility"
+                  >
+                    {showConfirm ? (
+                      <VisibilityOffOutlined />
+                    ) : (
+                      <VisibilityOutlined />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+
+        {changePassword.isError && (
+          <Alert severity="error">Current password is incorrect</Alert>
+        )}
+
+        {changePassword.isSuccess && (
+          <Alert severity="success">Password changed successfully</Alert>
+        )}
+
+        <Box>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={changePassword.isPending}
+            sx={{ mt: 1 }}
           >
-            <TextField
-              {...register('currentPassword')}
-              label="Current password"
-              type={showCurrent ? 'text' : 'password'}
-              autoComplete="current-password"
-              fullWidth
-              error={Boolean(errors.currentPassword)}
-              helperText={errors.currentPassword?.message}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowCurrent((s) => !s)}
-                        edge="end"
-                        aria-label="toggle current password visibility"
-                      >
-                        {showCurrent ? (
-                          <VisibilityOffOutlined />
-                        ) : (
-                          <VisibilityOutlined />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-
-            <TextField
-              {...register('newPassword')}
-              label="New password"
-              type={showNew ? 'text' : 'password'}
-              autoComplete="new-password"
-              fullWidth
-              error={Boolean(errors.newPassword)}
-              helperText={errors.newPassword?.message}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowNew((s) => !s)}
-                        edge="end"
-                        aria-label="toggle new password visibility"
-                      >
-                        {showNew ? (
-                          <VisibilityOffOutlined />
-                        ) : (
-                          <VisibilityOutlined />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-
-            <TextField
-              {...register('confirmPassword')}
-              label="Confirm new password"
-              type={showConfirm ? 'text' : 'password'}
-              autoComplete="new-password"
-              fullWidth
-              error={Boolean(errors.confirmPassword)}
-              helperText={errors.confirmPassword?.message}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowConfirm((s) => !s)}
-                        edge="end"
-                        aria-label="toggle confirm password visibility"
-                      >
-                        {showConfirm ? (
-                          <VisibilityOffOutlined />
-                        ) : (
-                          <VisibilityOutlined />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-
-            {changePassword.isError && (
-              <Alert severity="error">Current password is incorrect</Alert>
-            )}
-
-            {changePassword.isSuccess && (
-              <Alert severity="success">Password changed successfully</Alert>
-            )}
-
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              disabled={changePassword.isPending}
-              sx={{ mt: 1 }}
-            >
-              {changePassword.isPending ? 'Saving…' : 'Change password'}
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
+            {changePassword.isPending ? 'Saving…' : 'Change password'}
+          </Button>
+        </Box>
+      </Box>
+    </PageContainer>
   )
 }

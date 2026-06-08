@@ -6,19 +6,17 @@ import {
   Alert,
   Box,
   Button,
-  Card,
-  CardContent,
   Divider,
   IconButton,
   InputAdornment,
   Link,
   TextField,
-  Typography,
 } from '@mui/material'
 import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material'
 
 import { loginSchema, type LoginFormValues } from '../../schemas/auth'
 import { useLogin } from '../../hooks/useAuth'
+import { AuthShell } from './AuthShell'
 
 const DEMO_EMAIL = 'demo@example.com'
 const DEMO_PASSWORD = 'password123'
@@ -44,106 +42,91 @@ export const LoginPage = () => {
   }
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 2,
-      }}
+    <AuthShell
+      title="Sign in"
+      subtitle="Welcome back to SmartPad"
+      footer={
+        <>
+          Don&apos;t have an account?{' '}
+          <Link component={RouterLink} to="/register">
+            Register
+          </Link>
+        </>
+      }
     >
-      <Card sx={{ width: '100%', maxWidth: 400 }}>
-        <CardContent sx={{ p: 4 }}>
-          <Typography variant="h5" sx={{ mb: 1, fontWeight: 'bold' }}>
-            Sign in
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Welcome back to Smartpad
-          </Typography>
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+      >
+        <TextField
+          {...register('email')}
+          label="Email"
+          type="email"
+          autoComplete="email"
+          autoFocus
+          fullWidth
+          error={Boolean(errors.email)}
+          helperText={errors.email?.message}
+        />
 
-          <Box
-            component="form"
-            onSubmit={handleSubmit(onSubmit)}
-            noValidate
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-          >
-            <TextField
-              {...register('email')}
-              label="Email"
-              type="email"
-              autoComplete="email"
-              autoFocus
-              fullWidth
-              error={Boolean(errors.email)}
-              helperText={errors.email?.message}
-            />
+        <TextField
+          {...register('password')}
+          label="Password"
+          type={showPassword ? 'text' : 'password'}
+          autoComplete="current-password"
+          fullWidth
+          error={Boolean(errors.password)}
+          helperText={errors.password?.message}
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((s) => !s)}
+                    edge="end"
+                    aria-label="toggle password visibility"
+                  >
+                    {showPassword ? (
+                      <VisibilityOffOutlined />
+                    ) : (
+                      <VisibilityOutlined />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
 
-            <TextField
-              {...register('password')}
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              fullWidth
-              error={Boolean(errors.password)}
-              helperText={errors.password?.message}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword((s) => !s)}
-                        edge="end"
-                        aria-label="toggle password visibility"
-                      >
-                        {showPassword ? (
-                          <VisibilityOffOutlined />
-                        ) : (
-                          <VisibilityOutlined />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
+        {login.isError && (
+          <Alert severity="error" sx={{ mt: 1 }}>
+            Invalid email or password
+          </Alert>
+        )}
 
-            {login.isError && (
-              <Alert severity="error" sx={{ mt: 1 }}>
-                Invalid email or password
-              </Alert>
-            )}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={login.isPending}
+          sx={{ mt: 1 }}
+        >
+          {login.isPending ? 'Signing in…' : 'Sign in'}
+        </Button>
+      </Box>
 
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              disabled={login.isPending}
-              sx={{ mt: 1 }}
-            >
-              {login.isPending ? 'Signing in…' : 'Sign in'}
-            </Button>
-          </Box>
+      <Divider sx={{ my: 2 }}>or</Divider>
 
-          <Divider sx={{ my: 2 }}>or</Divider>
-
-          <Button
-            variant="outlined"
-            fullWidth
-            onClick={loginAsDemo}
-            disabled={login.isPending}
-          >
-            Try Demo
-          </Button>
-
-          <Typography variant="body2" align="center" sx={{ mt: 3 }}>
-            Don&apos;t have an account?{' '}
-            <Link component={RouterLink} to="/register">
-              Register
-            </Link>
-          </Typography>
-        </CardContent>
-      </Card>
-    </Box>
+      <Button
+        variant="outlined"
+        fullWidth
+        onClick={loginAsDemo}
+        disabled={login.isPending}
+      >
+        Try Demo
+      </Button>
+    </AuthShell>
   )
 }
