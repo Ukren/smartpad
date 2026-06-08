@@ -1,182 +1,104 @@
-import * as React from 'react'
 import { useTheme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
-import Toolbar from '@mui/material/Toolbar'
-import { useLocation } from 'react-router-dom'
-import DashboardSidebarContext from '../context/DashboardSidebarContext'
-import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '../constants'
-import {
-  getDrawerSxTransitionMixin,
-  getDrawerWidthTransitionMixin,
-} from '../mixins'
-import { SidebarNavItems } from './SidebarNavItems'
-import { SidebarFooter } from './SidebarFooter'
+import { DRAWER_WIDTH } from '../constants'
+import { palette } from '../../../theme/tokens'
+import { useDashboardLayout } from '../context/DashboardLayoutContext'
+import { SidebarWorkspaceHeader } from './SidebarWorkspaceHeader'
+import { SidebarQuickItems } from './SidebarQuickItems'
+import { SidebarPrivateNotes } from './SidebarPrivateNotes'
+import { SidebarTbdSection } from './SidebarTbdSection'
+import { SidebarBottom } from './SidebarBottom'
 
-export interface DashboardSidebarProps {
-  expanded?: boolean
-  setExpanded: (expanded: boolean) => void
-  container?: Element
-}
-
-export default function DashboardSidebar({
-  expanded = true,
-  setExpanded,
-  container,
-}: DashboardSidebarProps) {
+export default function DashboardSidebar() {
   const theme = useTheme()
-  useLocation() // re-render on navigation
+  const { sidebarOpen, setSidebarOpen, isMobile } = useDashboardLayout()
 
-  const isOverSmViewport = useMediaQuery(theme.breakpoints.up('sm'))
-  const isOverMdViewport = useMediaQuery(theme.breakpoints.up('md'))
+  const content = (
+    <Box
+      sx={(t) => ({
+        width: DRAWER_WIDTH,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: palette.sidebarBg,
+        ...t.applyStyles('dark', { backgroundColor: palette.sidebarBgDark }),
+      })}
+    >
+      <SidebarWorkspaceHeader />
 
-  const [isFullyExpanded, setIsFullyExpanded] = React.useState(expanded)
-  const [isFullyCollapsed, setIsFullyCollapsed] = React.useState(!expanded)
-
-  React.useEffect(() => {
-    if (expanded) {
-      const timeout = setTimeout(() => {
-        setIsFullyExpanded(true)
-      }, theme.transitions.duration.enteringScreen)
-      return () => clearTimeout(timeout)
-    }
-    setIsFullyExpanded(false)
-    return () => {}
-  }, [expanded, theme.transitions.duration.enteringScreen])
-
-  React.useEffect(() => {
-    if (!expanded) {
-      const timeout = setTimeout(() => {
-        setIsFullyCollapsed(true)
-      }, theme.transitions.duration.leavingScreen)
-      return () => clearTimeout(timeout)
-    }
-    setIsFullyCollapsed(false)
-    return () => {}
-  }, [expanded, theme.transitions.duration.leavingScreen])
-
-  const mini = !expanded
-
-  const handleSetSidebarExpanded = React.useCallback(
-    (newExpanded: boolean) => () => {
-      setExpanded(newExpanded)
-    },
-    [setExpanded]
-  )
-
-  const handlePageItemClick = React.useCallback(
-    (_itemId: string, hasNestedNavigation: boolean) => {
-      if (!isOverSmViewport && !hasNestedNavigation) {
-        setExpanded(false)
-      }
-    },
-    [setExpanded, isOverSmViewport]
-  )
-
-  const hasDrawerTransitions = isOverSmViewport || isOverMdViewport
-
-  const drawerContent = (
-    <React.Fragment>
-      <Toolbar />
       <Box
-        component="nav"
         sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          overflow: 'auto',
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
           overflowX: 'hidden',
-          pt: !mini ? 0 : 2,
-          ...(hasDrawerTransitions
-            ? getDrawerSxTransitionMixin(isFullyExpanded, 'padding')
-            : {}),
+          px: '6px',
+          pb: 1,
         }}
       >
-        <Box>
-          <SidebarNavItems mini={mini} />
-        </Box>
-        <SidebarFooter mini={mini} />
+        <SidebarQuickItems />
+        <SidebarPrivateNotes />
+        <SidebarTbdSection />
       </Box>
-    </React.Fragment>
+
+      <Box
+        sx={(t) => ({
+          px: '6px',
+          borderTop: `1px solid ${palette.border}`,
+          ...t.applyStyles('dark', {
+            borderTop: `1px solid ${palette.borderDark}`,
+          }),
+        })}
+      >
+        <SidebarBottom />
+      </Box>
+    </Box>
   )
 
-  const getDrawerSharedSx = React.useCallback(
-    (isTemporary: boolean) => {
-      const drawerWidth = mini ? MINI_DRAWER_WIDTH : DRAWER_WIDTH
-
-      return {
-        displayPrint: 'none',
-        width: drawerWidth,
-        flexShrink: 0,
-        ...getDrawerWidthTransitionMixin(expanded),
-        ...(isTemporary ? { position: 'absolute' } : {}),
-        [`& .MuiDrawer-paper`]: {
-          position: 'absolute',
-          width: drawerWidth,
-          boxSizing: 'border-box',
-          backgroundImage: 'none',
-          ...getDrawerWidthTransitionMixin(expanded),
-        },
-      }
-    },
-    [expanded, mini]
-  )
-
-  const sidebarContextValue = React.useMemo(
-    () => ({
-      onPageItemClick: handlePageItemClick,
-      mini,
-      fullyExpanded: isFullyExpanded,
-      fullyCollapsed: isFullyCollapsed,
-      hasDrawerTransitions,
-    }),
-    [
-      handlePageItemClick,
-      mini,
-      isFullyExpanded,
-      isFullyCollapsed,
-      hasDrawerTransitions,
-    ]
-  )
-
-  return (
-    <DashboardSidebarContext.Provider value={sidebarContextValue}>
-      {/* Mobile drawer */}
+  if (isMobile) {
+    return (
       <Drawer
-        container={container}
         variant="temporary"
-        open={expanded}
-        onClose={handleSetSidebarExpanded(false)}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
         ModalProps={{ keepMounted: true }}
         sx={{
-          display: { xs: 'block', sm: 'none', md: 'none' },
-          ...getDrawerSharedSx(true),
+          displayPrint: 'none',
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+            border: 0,
+            backgroundImage: 'none',
+          },
         }}
       >
-        {drawerContent}
+        {content}
       </Drawer>
-      {/* Tablet drawer */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          display: { xs: 'none', sm: 'block', md: 'none' },
-          ...getDrawerSharedSx(false),
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-      {/* Desktop drawer */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          display: { xs: 'none', md: 'block' },
-          ...getDrawerSharedSx(false),
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-    </DashboardSidebarContext.Provider>
+    )
+  }
+
+  return (
+    <Box
+      component="aside"
+      sx={(t) => ({
+        displayPrint: 'none',
+        flexShrink: 0,
+        width: sidebarOpen ? DRAWER_WIDTH : 0,
+        overflow: 'hidden',
+        transition: theme.transitions.create('width', {
+          easing: theme.transitions.easing.sharp,
+          duration: sidebarOpen
+            ? theme.transitions.duration.enteringScreen
+            : theme.transitions.duration.leavingScreen,
+        }),
+        borderRight: `1px solid ${palette.border}`,
+        ...t.applyStyles('dark', {
+          borderRight: `1px solid ${palette.borderDark}`,
+        }),
+      })}
+    >
+      {content}
+    </Box>
   )
 }
