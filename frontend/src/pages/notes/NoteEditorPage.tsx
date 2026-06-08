@@ -10,11 +10,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import Autocomplete from '@mui/material/Autocomplete'
 import Stack from '@mui/material/Stack'
-import {
-  ArrowBack,
-  EditOutlined,
-  VisibilityOutlined,
-} from '@mui/icons-material'
+import { EditOutlined, VisibilityOutlined } from '@mui/icons-material'
 
 import { z } from 'zod'
 import { noteSchema } from '../../schemas/note'
@@ -83,8 +79,8 @@ export const NoteEditorPage = () => {
   return (
     <PageContainer
       breadcrumbs={[
-        { title: 'Notes', path: '/notes' },
-        { title: isEdit ? 'Edit' : 'New' },
+        { title: 'All Notes', path: '/notes' },
+        { title: isEdit ? note?.title || 'Untitled' : 'New note' },
       ]}
       actions={
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
@@ -94,11 +90,11 @@ export const NoteEditorPage = () => {
             value={preview ? 'preview' : 'edit'}
             onChange={(_, val) => val !== null && setPreview(val === 'preview')}
           >
-            <ToggleButton value="edit">
+            <ToggleButton value="edit" sx={{ px: 1, py: 0.5 }}>
               <EditOutlined fontSize="small" sx={{ mr: 0.5 }} />
               Edit
             </ToggleButton>
-            <ToggleButton value="preview">
+            <ToggleButton value="preview" sx={{ px: 1, py: 0.5 }}>
               <VisibilityOutlined fontSize="small" sx={{ mr: 0.5 }} />
               Preview
             </ToggleButton>
@@ -107,6 +103,7 @@ export const NoteEditorPage = () => {
             type="submit"
             form="note-form"
             variant="contained"
+            size="small"
             disabled={
               isSubmitting || createNote.isPending || updateNote.isPending
             }
@@ -116,15 +113,6 @@ export const NoteEditorPage = () => {
         </Stack>
       }
     >
-      <Button
-        startIcon={<ArrowBack />}
-        size="small"
-        onClick={() => navigate(-1)}
-        sx={{ mb: 2, alignSelf: 'flex-start' }}
-      >
-        Cancel
-      </Button>
-
       <Box
         component="form"
         id="note-form"
@@ -133,11 +121,18 @@ export const NoteEditorPage = () => {
       >
         <TextField
           {...register('title')}
-          label="Title"
+          placeholder="Untitled"
+          variant="standard"
           fullWidth
           autoFocus
           error={Boolean(errors.title)}
           helperText={errors.title?.message}
+          slotProps={{
+            input: {
+              disableUnderline: true,
+              sx: { fontSize: '2.5rem', fontWeight: 700, lineHeight: 1.2 },
+            },
+          }}
           sx={{ mb: 2 }}
         />
 
@@ -148,43 +143,26 @@ export const NoteEditorPage = () => {
             <Autocomplete
               multiple
               freeSolo
+              size="small"
               options={tagOptions}
               value={field.value ?? []}
               onChange={(_, newValue) => field.onChange(newValue as string[])}
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Tags"
-                  placeholder="Add tag…"
+                  variant="standard"
+                  placeholder="Add tags…"
                   error={Boolean(errors.tags)}
-                  helperText={
-                    errors.tags?.message ?? 'Press Enter to add a custom tag'
-                  }
+                  helperText={errors.tags?.message}
                 />
               )}
-              sx={{ mb: 3 }}
+              sx={{ mb: 3, maxWidth: 480 }}
             />
           )}
         />
 
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ mb: 1, display: 'block' }}
-        >
-          Content (Markdown supported)
-        </Typography>
-
         {preview ? (
-          <Box
-            sx={{
-              minHeight: 240,
-              p: 2,
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 1,
-            }}
-          >
+          <Box sx={{ minHeight: 240 }}>
             {watchedContent ? (
               <MarkdownPreview content={watchedContent} />
             ) : (
@@ -197,11 +175,18 @@ export const NoteEditorPage = () => {
           <TextField
             {...register('content')}
             multiline
-            minRows={10}
+            minRows={14}
             fullWidth
-            placeholder="Write in Markdown…"
+            variant="standard"
+            placeholder="Start writing… (Markdown supported)"
             error={Boolean(errors.content)}
             helperText={errors.content?.message}
+            slotProps={{
+              input: {
+                disableUnderline: true,
+                sx: { fontSize: '1rem', lineHeight: 1.6 },
+              },
+            }}
           />
         )}
       </Box>

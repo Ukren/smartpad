@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useNote, useTogglePin, useSoftDeleteNote } from '../../hooks/useNotes'
 
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
-import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Tooltip from '@mui/material/Tooltip'
@@ -18,13 +18,10 @@ import {
 } from '../../components'
 import { PageContainer } from '../../components/PageContainer'
 
-import {
-  ArrowBack,
-  EditOutlined,
-  DeleteOutlined,
-  PushPin,
-  PushPinOutlined,
-} from '@mui/icons-material'
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
+import PushPinIcon from '@mui/icons-material/PushPin'
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined'
 
 export const NoteViewPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -53,46 +50,51 @@ export const NoteViewPage = () => {
 
   return (
     <PageContainer
-      breadcrumbs={[{ title: 'Notes', path: '/notes' }, { title: note.title }]}
+      breadcrumbs={[
+        { title: 'All Notes', path: '/notes' },
+        { title: note.title || 'Untitled' },
+      ]}
       actions={
-        <Stack direction="row" spacing={0.5}>
-          <Tooltip title="Edit note">
-            <IconButton onClick={() => navigate(`/notes/${note.id}/edit`)}>
-              <EditOutlined />
-            </IconButton>
-          </Tooltip>
+        <Stack direction="row" spacing={0.25} sx={{ alignItems: 'center' }}>
+          <Button
+            size="small"
+            startIcon={<EditOutlinedIcon sx={{ fontSize: 16 }} />}
+            onClick={() => navigate(`/notes/${note.id}/edit`)}
+            sx={{ color: 'text.secondary' }}
+          >
+            Edit
+          </Button>
           <Tooltip title={note.isPinned ? 'Unpin' : 'Pin'}>
-            <IconButton onClick={handlePin}>
-              {note.isPinned ? <PushPin /> : <PushPinOutlined />}
+            <IconButton size="small" onClick={handlePin}>
+              {note.isPinned ? (
+                <PushPinIcon sx={{ fontSize: 18 }} />
+              ) : (
+                <PushPinOutlinedIcon sx={{ fontSize: 18 }} />
+              )}
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete note">
-            <IconButton color="error" onClick={() => setDeleteOpen(true)}>
-              <DeleteOutlined />
+            <IconButton size="small" onClick={() => setDeleteOpen(true)}>
+              <DeleteOutlineIcon sx={{ fontSize: 18 }} />
             </IconButton>
           </Tooltip>
         </Stack>
       }
     >
-      <Button
-        startIcon={<ArrowBack />}
-        onClick={() => navigate('/notes')}
-        size="small"
-        sx={{ mb: 2, alignSelf: 'flex-start' }}
-      >
-        Back
-      </Button>
+      <Typography variant="h1" sx={{ mb: 1 }}>
+        {note.title || 'Untitled'}
+      </Typography>
 
       <Typography
         variant="caption"
-        color="text.disabled"
-        sx={{ mb: 1, display: 'block' }}
+        color="text.secondary"
+        sx={{ display: 'block', mb: note.tags.length > 0 ? 1.5 : 3 }}
       >
-        Last updated {new Date(note.updatedAt).toLocaleDateString()}
+        Last edited {new Date(note.updatedAt).toLocaleDateString()}
       </Typography>
 
       {note.tags.length > 0 && (
-        <Stack direction="row" spacing={0.5} sx={{ mb: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 3 }}>
           {note.tags.map((tag) => (
             <Chip
               key={tag.id}
@@ -101,17 +103,15 @@ export const NoteViewPage = () => {
               variant="outlined"
             />
           ))}
-        </Stack>
+        </Box>
       )}
-
-      <Divider sx={{ mb: 3 }} />
 
       <MarkdownPreview content={note.content} />
 
       <ConfirmDialog
         open={deleteOpen}
         title="Delete note"
-        message={`"${note.title}" will be moved to trash. You can restore it from Deleted Notes.`}
+        message={`"${note.title}" will be moved to trash. You can restore it from Trash.`}
         confirmLabel="Delete"
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteOpen(false)}

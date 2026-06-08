@@ -17,8 +17,6 @@ type NoteUpdateData = Partial<NoteFormValues> & {
   isDeleted?: boolean
 }
 
-// ── Read hooks ────────────────────────────────────────────────────────────────
-
 export const useNotes = (search?: string) =>
   useQuery({
     queryKey: ['notes', search ?? ''],
@@ -62,8 +60,6 @@ export const useNotesByTag = (tag: string) =>
     enabled: Boolean(tag),
     retry: false,
   })
-
-// ── Mutation hooks ────────────────────────────────────────────────────────────
 
 export const useCreateNote = () => {
   const qc = useQueryClient()
