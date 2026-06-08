@@ -3,97 +3,66 @@ import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
-import Toolbar from '@mui/material/Toolbar'
 import { Outlet } from 'react-router-dom'
-import DashboardHeader from './DashboardHeader'
 import DashboardSidebar from './Sidebar/DashboardSidebar'
+import { DashboardLayoutContext } from './context/DashboardLayoutContext'
 import { useCurrentUser } from '../../hooks/useAuth'
+import { palette } from '../../theme/tokens'
 
 export default function DashboardLayout() {
   const theme = useTheme()
   const { data: user } = useCurrentUser()
   const isDemo = user?.email === 'demo@example.com'
 
-  const [isDesktopNavigationExpanded, setIsDesktopNavigationExpanded] =
-    React.useState(true)
-  const [isMobileNavigationExpanded, setIsMobileNavigationExpanded] =
-    React.useState(false)
+  const isMobile = !useMediaQuery(theme.breakpoints.up('md'))
 
-  const isOverMdViewport = useMediaQuery(theme.breakpoints.up('md'))
+  const [desktopOpen, setDesktopOpen] = React.useState(true)
+  const [mobileOpen, setMobileOpen] = React.useState(false)
 
-  const isNavigationExpanded = isOverMdViewport
-    ? isDesktopNavigationExpanded
-    : isMobileNavigationExpanded
+  const sidebarOpen = isMobile ? mobileOpen : desktopOpen
 
-  const setIsNavigationExpanded = React.useCallback(
-    (newExpanded: boolean) => {
-      if (isOverMdViewport) {
-        setIsDesktopNavigationExpanded(newExpanded)
-      } else {
-        setIsMobileNavigationExpanded(newExpanded)
-      }
+  const setSidebarOpen = React.useCallback(
+    (open: boolean) => {
+      if (isMobile) setMobileOpen(open)
+      else setDesktopOpen(open)
     },
-    [isOverMdViewport]
+    [isMobile]
   )
 
-  const handleToggleHeaderMenu = React.useCallback(
-    (isExpanded: boolean) => {
-      setIsNavigationExpanded(isExpanded)
-    },
-    [setIsNavigationExpanded]
+  const contextValue = React.useMemo(
+    () => ({ sidebarOpen, setSidebarOpen, isMobile }),
+    [sidebarOpen, setSidebarOpen, isMobile]
   )
-
-  const layoutRef = React.useRef<HTMLDivElement>(null)
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-      }}
-    >
-      {isDemo && (
-        <Alert severity="info" sx={{ borderRadius: 0, py: 0.5 }}>
-          You&apos;re using the demo account — feel free to explore.
-          Credentials: <strong>demo@example.com</strong> /{' '}
-          <strong>password123</strong>
-        </Alert>
-      )}
+    <DashboardLayoutContext.Provider value={contextValue}>
       <Box
-        ref={layoutRef}
-        sx={{
-          position: 'relative',
+        sx={(t) => ({
           display: 'flex',
-          overflow: 'hidden',
-          flex: 1,
-          width: '100%',
-        }}
+          flexDirection: 'column',
+          height: '100vh',
+          backgroundColor: palette.appBg,
+          ...t.applyStyles('dark', { backgroundColor: palette.appBgDark }),
+        })}
       >
-        <DashboardHeader
-          menuOpen={isNavigationExpanded}
-          onToggleMenu={handleToggleHeaderMenu}
-        />
-        <DashboardSidebar
-          expanded={isNavigationExpanded}
-          setExpanded={setIsNavigationExpanded}
-          container={layoutRef?.current ?? undefined}
-        />
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            flex: 1,
-            minWidth: 0,
-          }}
-        >
-          <Toolbar sx={{ displayPrint: 'none' }} />
+        {isDemo && (
+          <Alert severity="info" sx={{ borderRadius: 0, py: 0.25 }}>
+            You&apos;re using the demo account — feel free to explore.
+            Credentials: <strong>demo@example.com</strong> /{' '}
+            <strong>password123</strong>
+          </Alert>
+        )}
+
+        <Box sx={{ display: 'flex', flex: 1, minHeight: 0, width: '100%' }}>
+          <DashboardSidebar />
+
           <Box
             component="main"
             sx={{
               display: 'flex',
               flexDirection: 'column',
               flex: 1,
+              minWidth: 0,
               overflow: 'auto',
             }}
           >
@@ -101,6 +70,6 @@ export default function DashboardLayout() {
           </Box>
         </Box>
       </Box>
-    </Box>
+    </DashboardLayoutContext.Provider>
   )
 }
